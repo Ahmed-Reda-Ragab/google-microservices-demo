@@ -17,10 +17,19 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"time"
 )
+
+// seeded determines if the random number generator is ready.
+var seeded bool = false
 
 // CreateTrackingId generates a tracking ID.
 func CreateTrackingId(salt string) string {
+	if !seeded {
+		rand.Seed(time.Now().UnixNano())
+		seeded = true
+	}
+
 	return fmt.Sprintf("%c%c-%d%s-%d%s",
 		getRandomLetterCode(),
 		getRandomLetterCode(),

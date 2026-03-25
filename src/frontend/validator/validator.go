@@ -79,5 +79,5 @@ func ValidationErrorResponse(err error) error {
 	for _, err := range validationErrs {
 		msg += fmt.Sprintf("Field '%s' is invalid: %s\n", err.Field(), err.Tag())
 	}
-	return fmt.Errorf("%s", msg)
+	return fmt.Errorf(msg)
 }

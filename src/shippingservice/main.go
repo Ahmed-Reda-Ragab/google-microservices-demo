@@ -25,7 +25,6 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 
@@ -90,8 +89,7 @@ func main() {
 	}
 	svc := &server{}
 	pb.RegisterShippingServiceServer(srv, svc)
-	healthcheck := health.NewServer()
-	healthpb.RegisterHealthServer(srv, healthcheck)
+	healthpb.RegisterHealthServer(srv, svc)
 	log.Infof("Shipping Service listening on port %s", port)
 
 	// Register reflection service on gRPC server.
@@ -121,11 +119,7 @@ func (s *server) GetQuote(ctx context.Context, in *pb.GetQuoteRequest) (*pb.GetQ
 	defer log.Info("[GetQuote] completed request")
 
 	// 1. Generate a quote based on the total number of items to be shipped.
-	count := 0
-	for _, item := range in.Items {
-		count += int(item.Quantity)
-	}
-	quote := CreateQuoteFromCount(count)
+	quote := CreateQuoteFromCount(0)
 
 	// 2. Generate a response.
 	return &pb.GetQuoteResponse{

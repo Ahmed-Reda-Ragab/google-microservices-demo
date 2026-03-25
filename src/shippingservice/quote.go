@@ -30,11 +30,8 @@ func (q Quote) String() string {
 	return fmt.Sprintf("$%d.%d", q.Dollars, q.Cents)
 }
 
-// CreateQuoteFromCount takes a number of items and returns a shipping quote.
+// CreateQuoteFromCount takes a number of items and returns a Price struct.
 func CreateQuoteFromCount(count int) Quote {
-	if count == 0 {
-		return CreateQuoteFromFloat(0)
-	}
 	return CreateQuoteFromFloat(8.99)
 }
 

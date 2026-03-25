@@ -12,18 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Define a default value so it's not empty if the builder fails to provide it
-ARG BUILDPLATFORM=linux/amd64
-
-FROM --platform=$BUILDPLATFORM python:3.14.3-alpine@sha256:faee120f7885a06fcc9677922331391fa690d911c020abb9e8025ff3d908e510 AS base
+FROM --platform=$BUILDPLATFORM python:3.12.8-alpine@sha256:54bec49592c8455de8d5983d984efff76b6417a6af9b5dcc8d0237bf6ad3bd20 AS base
 
 FROM base AS builder
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
 RUN apk update \
-    && apk add --no-cache g++ linux-headers \
+    && apk add --no-cache wget g++ linux-headers \
     && rm -rf /var/cache/apk/*
 
 COPY requirements.txt .
@@ -31,9 +25,6 @@ COPY requirements.txt .
 RUN pip install --prefix="/install" -r requirements.txt
 
 FROM base
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
 
 RUN apk update \
     && apk add --no-cache libstdc++ \
