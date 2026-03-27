@@ -1,0 +1,98 @@
+version: '3'
+services:
+  productcatalogservice:
+    build: ./src/productcatalogservice
+    ports:
+      - "3550:3550"
+  frontend:
+    build: ./src/frontend
+    ports:
+      - "8080:8080"
+    environment:
+      PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+      CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+      CART_SERVICE_ADDR: "cartservice:7070"
+      RECOMMENDATION_SERVICE_ADDR: "recommendationservice:8088"
+      SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+      CHECKOUT_SERVICE_ADDR: "checkoutservice:5050"
+      AD_SERVICE_ADDR: "adservice:9555"
+      SHOPPING_ASSISTANT_SERVICE_ADDR: "shoppingassistantservice:80"
+      PORT: "8080"
+      DISABLE_PROFILER: "1"
+  currencyservice:
+    build: ./src/currencyservice
+    ports:
+      - "7000:7000"
+    environment:
+      PORT: "7000"
+      DISABLE_PROFILER: "1"
+  cartservice:
+    build: ./src/cartservice/src
+    ports:
+      - "7070:7070"
+    environment:
+      REDIS_ADDR: "redis-cart:6379"
+      PORT: "7070"
+      DISABLE_PROFILER: "1"
+    depends_on:
+      - redis-cart
+  redis-cart:
+    image: redis:8.6-alpine
+    ports:
+      - "6379:6379"
+  shippingservice:
+    build: ./src/shippingservice
+    ports:
+      - "50051:50051"
+    environment:
+      PORT: "50051"
+      DISABLE_PROFILER: "1"
+  checkoutservice:
+    build: ./src/checkoutservice
+    ports:
+      - "5050:5050"
+    environment:
+      PORT: "5050"
+      DISABLE_PROFILER: "1"
+      PRODUCT_CATALOG_SERVICE_ADDR: "productcatalogservice:3550"
+      SHIPPING_SERVICE_ADDR: "shippingservice:50051"
+      PAYMENT_SERVICE_ADDR: "paymentservice:50051"
+      EMAIL_SERVICE_ADDR: "emailservice:5000"
+      CURRENCY_SERVICE_ADDR: "currencyservice:7000"
+      CART_SERVICE_ADDR: "cartservice:7070"
+  paymentservice :
+    build: ./src/paymentservice
+    ports:
+      - "50052:50051"
+    environment:
+      PORT: "50051"
+      DISABLE_PROFILER: "1"
+  emailservice:
+    build: ./src/emailservice
+    ports:
+      - "5000:8080"
+    environment:
+      PORT: "5000"
+      DISABLE_PROFILER: "1"
+  adservice:
+    build: ./src/adservice
+    ports:
+      - "9555:9555"
+    environment:
+      PORT: "9555"
+      DISABLE_PROFILER: "1"
+  recommendationservice	:
+    build: ./src/recommendationservice
+    ports:
+      - "8088:8080"
+    environment:
+      PORT: "8080"
+      DISABLE_PROFILER: "1"
+  loadgenerator:
+    build: ./src/loadgenerator
+    depends_on:
+      - frontend
+    environment:
+      FRONTEND_ADDR: "frontend:8080"
+      USERS: "10"
+      RATE: "1"

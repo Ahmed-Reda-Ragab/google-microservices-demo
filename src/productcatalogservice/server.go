@@ -29,7 +29,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
-	"cloud.google.com/go/profiler"
+	// "cloud.google.com/go/profiler"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -74,12 +74,14 @@ func main() {
 		log.Info("Tracing disabled.")
 	}
 
-	if os.Getenv("DISABLE_PROFILER") == "" {
-		log.Info("Profiling enabled.")
-		go initProfiling("productcatalogservice", "1.0.0")
-	} else {
-		log.Info("Profiling disabled.")
-	}
+	// GCP Profiler disabled for local development
+	// if os.Getenv("DISABLE_PROFILER") == "" {
+	// 	log.Info("Profiling enabled.")
+	// 	go initProfiling("productcatalogservice", "1.0.0")
+	// } else {
+	// 	log.Info("Profiling disabled.")
+	// }
+	log.Info("Profiling disabled.")
 
 	flag.Parse()
 
@@ -175,25 +177,26 @@ func initTracing() error {
 	return err
 }
 
-func initProfiling(service, version string) {
-	for i := 1; i <= 3; i++ {
-		if err := profiler.Start(profiler.Config{
-			Service:        service,
-			ServiceVersion: version,
-			// ProjectID must be set if not running on GCP.
-			// ProjectID: "my-project",
-		}); err != nil {
-			log.Warnf("failed to start profiler: %+v", err)
-		} else {
-			log.Info("started Stackdriver profiler")
-			return
-		}
-		d := time.Second * 10 * time.Duration(i)
-		log.Infof("sleeping %v to retry initializing Stackdriver profiler", d)
-		time.Sleep(d)
-	}
-	log.Warn("could not initialize Stackdriver profiler after retrying, giving up")
-}
+// GCP Profiler function commented out for local development
+// func initProfiling(service, version string) {
+// 	for i := 1; i <= 3; i++ {
+// 		if err := profiler.Start(profiler.Config{
+// 			Service:        service,
+// 			ServiceVersion: version,
+// 			// ProjectID must be set if not running on GCP.
+// 			// ProjectID: "my-project",
+// 		}); err != nil {
+// 			log.Warnf("failed to start profiler: %+v", err)
+// 		} else {
+// 			log.Info("started Stackdriver profiler")
+// 			return
+// 		}
+// 		d := time.Second * 10 * time.Duration(i)
+// 		log.Infof("sleeping %v to retry initializing Stackdriver profiler", d)
+// 		time.Sleep(d)
+// 	}
+// 	log.Warn("could not initialize Stackdriver profiler after retrying, giving up")
+// }
 
 func mustMapEnv(target *string, envKey string) {
 	v := os.Getenv(envKey)
