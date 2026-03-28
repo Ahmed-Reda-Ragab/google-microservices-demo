@@ -43,7 +43,8 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: currencyservice
+        image: gcp-services-currencyservice
+        imagePullPolicy: IfNotPresent
         ports:
         - name: grpc
           containerPort: 7000
@@ -65,23 +66,3 @@ spec:
           limits:
             cpu: 200m
             memory: 128Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: currencyservice
-  labels:
-    app: currencyservice
-spec:
-  type: ClusterIP
-  selector:
-    app: currencyservice
-  ports:
-  - name: grpc
-    port: 7000
-    targetPort: 7000
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: currencyservice

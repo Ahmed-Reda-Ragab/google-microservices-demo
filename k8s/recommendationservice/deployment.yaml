@@ -15,19 +15,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shippingservice
+  name: recommendationservice
   labels:
-    app: shippingservice
+    app: recommendationservice
 spec:
   selector:
     matchLabels:
-      app: shippingservice
+      app: recommendationservice
   template:
     metadata:
       labels:
-        app: shippingservice
+        app: recommendationservice
     spec:
-      serviceAccountName: shippingservice
+      serviceAccountName: recommendationservice
+      terminationGracePeriodSeconds: 5
       securityContext:
         fsGroup: 1000
         runAsGroup: 1000
@@ -42,45 +43,29 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: shippingservice
+        image: gcp-services-recommendationservice
+        imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 50051
-        env:
-        - name: PORT
-          value: "50051"
-        - name: DISABLE_PROFILER
-          value: "1"
+        - containerPort: 8080
         readinessProbe:
           periodSeconds: 5
           grpc:
-            port: 50051
+            port: 8080
         livenessProbe:
+          periodSeconds: 5
           grpc:
-            port: 50051
+            port: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: PRODUCT_CATALOG_SERVICE_ADDR
+          value: "productcatalogservice:3550"
+        - name: DISABLE_PROFILER
+          value: "1"
         resources:
           requests:
             cpu: 100m
-            memory: 64Mi
+            memory: 220Mi
           limits:
             cpu: 200m
-            memory: 128Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: shippingservice
-  labels:
-    app: shippingservice
-spec:
-  type: ClusterIP
-  selector:
-    app: shippingservice
-  ports:
-  - name: grpc
-    port: 50051
-    targetPort: 50051
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: shippingservice
+            memory: 450Mi

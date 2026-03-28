@@ -15,19 +15,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: recommendationservice
+  name: emailservice
   labels:
-    app: recommendationservice
+    app: emailservice
 spec:
   selector:
     matchLabels:
-      app: recommendationservice
+      app: emailservice
   template:
     metadata:
       labels:
-        app: recommendationservice
+        app: emailservice
     spec:
-      serviceAccountName: recommendationservice
+      serviceAccountName: emailservice
       terminationGracePeriodSeconds: 5
       securityContext:
         fsGroup: 1000
@@ -43,9 +43,15 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: recommendationservice
+        image: gcp-services-emailservice
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: DISABLE_PROFILER
+          value: "1"
         readinessProbe:
           periodSeconds: 5
           grpc:
@@ -54,37 +60,10 @@ spec:
           periodSeconds: 5
           grpc:
             port: 8080
-        env:
-        - name: PORT
-          value: "8080"
-        - name: PRODUCT_CATALOG_SERVICE_ADDR
-          value: "productcatalogservice:3550"
-        - name: DISABLE_PROFILER
-          value: "1"
         resources:
           requests:
             cpu: 100m
-            memory: 220Mi
+            memory: 64Mi
           limits:
             cpu: 200m
-            memory: 450Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: recommendationservice
-  labels:
-    app: recommendationservice
-spec:
-  type: ClusterIP
-  selector:
-    app: recommendationservice
-  ports:
-  - name: grpc
-    port: 8080
-    targetPort: 8080
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: recommendationservice
+            memory: 128Mi

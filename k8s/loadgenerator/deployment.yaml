@@ -64,7 +64,8 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image: busybox:latest
+        image: gcp-services-loadgenerator:latest
+        imagePullPolicy: IfNotPresent
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
@@ -78,6 +79,7 @@ spec:
           privileged: false
           readOnlyRootFilesystem: true
         image: loadgenerator
+        imagePullPolicy: IfNotPresent
         env:
         - name: FRONTEND_ADDR
           value: "frontend:80"
@@ -92,8 +94,3 @@ spec:
           limits:
             cpu: 500m
             memory: 512Mi
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: loadgenerator
